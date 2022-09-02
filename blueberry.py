@@ -1,4 +1,4 @@
-from gpiozero import Button, LED
+from gpiozero import Button, LED, OutputDevice
 from enum import IntEnum
 from bluetoothaudio import BluetoothAudio, NoConnectedDeviceError
 import subprocess
@@ -10,13 +10,15 @@ class Pins(IntEnum):
     LEFT_BUTTON_READ = 5
     MIDDLE_BUTTON_READ = 6
     RIGHT_BUTTON_READ = 13
-    INDICATOR_LED = 4
+    INDICATOR_LED = 11
+    POWER_3V3_PIN = 0
 
 # Initialize the buttons and LED
 prev_button = Button(Pins.LEFT_BUTTON_READ, pull_up = True)
 pauseplay_button = Button(Pins.MIDDLE_BUTTON_READ, pull_up = True)
 next_button = Button(Pins.RIGHT_BUTTON_READ, pull_up = True)
 indicator_led = LED(Pins.INDICATOR_LED)
+power_pin = OutputDevice(Pins.POWER_3V3_PIN, active_high = True)
 
 AUTOCONNECT_PAUSE = 5 # Delay in seconds between attempts of autoconnecting to a device
 VERIFY_CONNECTION_PAUSE = 3 # Delay in seconds between verification that a device is connected
@@ -60,6 +62,8 @@ def run_if_connected(func):
 def init_buttons():
     """ Initialize button functionality
     """
+    power_pin.on()
+
     # Previous track, pause/play, and next track functionality on button presses
     prev_button.when_pressed = run_if_connected(bluetooth_audio.previous_song)
     pauseplay_button.when_pressed = run_if_connected(bluetooth_audio.play_pause_toggle)
